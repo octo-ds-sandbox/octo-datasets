@@ -6,4 +6,4 @@ permissions:
   statuses: write
 jobs:
   ci:
-    uses: octo-ds-sandbox/octo-ds/.github/workflows/dataset-ci.yml@main
+    uses: octo-ds-sandbox/octo-ds-ci/.github/workflows/dataset-ci.yml@main
