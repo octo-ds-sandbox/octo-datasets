@@ -1,0 +1,9 @@
+name: dataset-ci
+on:
+  pull_request:
+permissions:
+  contents: read
+  statuses: write
+jobs:
+  ci:
+    uses: octo-ds-sandbox/octo-ds-ci/.github/workflows/dataset-ci.yml@main
