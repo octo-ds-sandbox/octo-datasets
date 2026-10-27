@@ -1,0 +1,212 @@
+{
+  "$defs": {
+    "_Attribute": {
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "item_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "integer",
+                "number",
+                "string",
+                "boolean"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Item Type"
+        },
+        "list_comparison": {
+          "default": "set_equal",
+          "enum": [
+            "set_equal",
+            "subset"
+          ],
+          "title": "List Comparison",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance"
+        },
+        "type": {
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "boolean",
+            "list"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "_Attribute",
+      "type": "object"
+    },
+    "_Meta": {
+      "properties": {
+        "prompt_version": {
+          "title": "Prompt Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prompt_version"
+      ],
+      "title": "_Meta",
+      "type": "object"
+    },
+    "_Schema": {
+      "properties": {
+        "answer_type": {
+          "const": "object",
+          "default": "object",
+          "title": "Answer Type",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/_Attribute"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "title": "_Schema",
+      "type": "object"
+    },
+    "_StructuredGT": {
+      "properties": {
+        "_meta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/_Meta"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ground_truth": {
+          "additionalProperties": true,
+          "title": "Ground Truth",
+          "type": "object"
+        },
+        "schema": {
+          "$ref": "#/$defs/_Schema"
+        }
+      },
+      "required": [
+        "schema",
+        "ground_truth"
+      ],
+      "title": "_StructuredGT",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "description": "Consolidated ground-truth row schema for the evaluate_questions DAG. The union of every registered evaluator's GT model. Each property carries an 'x-evaluators' annotation listing the metrics that consume it. Per-row optional fields skip the metric at runtime rather than failing schema validation -- see the eval plugin for the skip-vs-fail boundary.",
+  "properties": {
+    "expected_answer": {
+      "title": "Expected Answer",
+      "type": "string",
+      "x-evaluators": [
+        "llm_structured_eval"
+      ]
+    },
+    "expected_chunk_ids": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "type": "object"
+        }
+      ],
+      "title": "Expected Chunk Ids",
+      "x-evaluators": [
+        "agent_citation_recall",
+        "filtering",
+        "retrieval"
+      ]
+    },
+    "expected_tool_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Tool Names",
+      "type": "array",
+      "x-evaluators": [
+        "agent_tool_use_detection"
+      ]
+    },
+    "question": {
+      "title": "Question",
+      "type": "string",
+      "x-evaluators": [
+        "agent_citation_recall",
+        "agent_tool_use_detection",
+        "filtering",
+        "llm_structured_eval",
+        "retrieval"
+      ]
+    },
+    "structured": {
+      "$ref": "#/$defs/_StructuredGT",
+      "x-evaluators": [
+        "llm_structured_eval"
+      ]
+    }
+  },
+  "required": [
+    "expected_answer",
+    "expected_chunk_ids",
+    "expected_tool_names",
+    "question",
+    "structured"
+  ],
+  "schema_version": 1,
+  "title": "GT Row",
+  "type": "object"
+}
